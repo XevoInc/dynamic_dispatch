@@ -65,7 +65,7 @@ def class_dispatch(typ: Type[T_co], default: Hashable):
 
                     def __init__(self, *args, **kwargs):
                         # Certain scenarios can cause __init__ to be called twice. This prevents it.
-                        if not self.__dispatch_init:
+                        if self.__class__ == __class__ and not self.__dispatch_init:
                             return
 
                         self.__dispatch_init = False

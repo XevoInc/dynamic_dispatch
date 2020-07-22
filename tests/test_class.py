@@ -541,3 +541,31 @@ class TestClassDispatch(TestCase):
         self.assertEqual(obj.abc_count, 1)
         self.assertEqual(obj.a, 5)
         self.assertEqual(obj.a_count, 1)
+
+    def test_dispatch_twice_derived(self):
+        @dynamic_dispatch
+        class Foo(OneArgInit):
+            pass
+
+        @Foo.dispatch(on='bar')
+        class Bar(Foo):
+            def __init__(self, abc, d):
+                super().__init__(abc)
+                self.d = d
+                self.d_count = getattr(self, 'b_count', 0) + 1
+
+        @Foo.dispatch(on='baz')
+        class Baz(Bar):
+            def __init__(self, abc, d, e):
+                super().__init__(abc, d)
+                self.e = e
+                self.e_count = getattr(self, 'e_count', 0) + 1
+
+        obj = Foo('baz', 'd', 'e')
+        self.assertIsInstance(obj, Baz)
+        self.assertEqual(obj.abc, 'baz')
+        self.assertEqual(obj.abc_count, 1)
+        self.assertEqual(obj.d, 'd')
+        self.assertEqual(obj.d_count, 1)
+        self.assertEqual(obj.e, 'e')
+        self.assertEqual(obj.e_count, 1)
